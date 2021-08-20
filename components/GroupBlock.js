@@ -1,12 +1,16 @@
 import React from 'react'
 import styled from 'styled-components/native'
 import {View} from 'react-native'
+import GrayText from './GrayText'
 
-const Appointment = ({ user , date , active}) => {
+const Appointment = ({ item  , navigate}) => {
+
+    const {user , date , active} = item
+
     return(
         <GroupBlock>
-                <GroupItem >
-                    <Avatar source={{ uri: user.avatar}} />
+                <GroupItem  onPress={ navigate.bind(this, 'Patient' , item)}>
+                    <Avatar source={{ uri: user.avatar}} />  
                     <View>
                         <FullName>{user.name}</FullName>
                         <GrayText>{user.diagnos}</GrayText>
@@ -45,10 +49,6 @@ const GroupDate = styled.Text`
   color: ${props => (props.active ? '#fff' : '#4249ff')}
 `;
 
-const GrayText = styled.Text`
-  font-size: 16px;
-  color: #8b979f;
-`;
 
 const FullName = styled.Text`
   font-size: 16px;
