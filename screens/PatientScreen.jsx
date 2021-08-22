@@ -6,12 +6,12 @@ import {View , Text  } from 'react-native'
 import Badge from '../components/Badge'
  
 const PatientScreen = ({navigation}) => {
-
-    return(
+    console.log(navigation.g)
+    return( 
         <View style={{flex: 1}}>
             <Container>
-                <PatientFullName>{navigation.getParam('user' ,{}).name}</PatientFullName>
-                <GrayText>{navigation.getParam('user' ,{}).phone}</GrayText>
+                <PatientFullName>{navigation.getParam('patientId' ,{}).fullname}</PatientFullName>
+                <GrayText>{navigation.getParam('patientId' ,{}).phone}</GrayText>
                 <ButtonView>
                     <ButtonFormullaWrapper>
                         <ButtonText>Формула зубів</ButtonText>
@@ -35,22 +35,22 @@ const PatientScreen = ({navigation}) => {
                         <AppointmentRow>
                             <MaterialCommunityIcons name="tooth" size={24} color="#a3a3a3" />
                             <AppointmentCardLabel>
-                                Зуб : <Text style={{fontWeight: '700'}}>12</Text>
+                                Зуб : <Text style={{fontWeight: '700'}}>{navigation.getParam('dentNumber' , 0 )}</Text>
                             </AppointmentCardLabel>
                         </AppointmentRow>
                         <AppointmentRow>
                             <MaterialCommunityIcons name="clipboard-text-multiple-outline" size={24} color="#a3a3a3" />
                             <AppointmentCardLabel>
-                                Діагноз : <Text style={{fontWeight: '700'}}>Пульпіт</Text>
+                                Діагноз : <Text style={{fontWeight: '700'}}>{navigation.getParam('diagnostic')}</Text>
                             </AppointmentCardLabel>
                         </AppointmentRow>   
                         <AppointmentRow style={{ paddingBottom: 0,display : 'flex' , justifyContent: 'space-between' }}>
                             <AppointmentDateWrapper>
-                                <AppointmentDate>11.10.2019 - 11.30</AppointmentDate>
+                                <AppointmentDate>{navigation.getParam('date')} - {navigation.getParam('time')}</AppointmentDate>
                             </AppointmentDateWrapper>
                             <AppointmentPriceWrapper>
                                 <AppointmentPrice>
-                                    1500 P
+                                    {navigation.getParam('price')} P
                                 </AppointmentPrice>
                             </AppointmentPriceWrapper>
                         </AppointmentRow>

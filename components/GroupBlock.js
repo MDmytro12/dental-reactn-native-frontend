@@ -3,21 +3,29 @@ import styled from 'styled-components/native'
 import {View} from 'react-native'
 import GrayText from './GrayText'
 
+const colorFilter = (wordd) => {
+  const word = wordd.trim()
+
+  return `rgb( ${word.charCodeAt(11) % 255 } , ${word.charCodeAt(4) % 255 } , ${word.charCodeAt(8) % 255} )`
+}
+
 const Appointment = ({ item  , navigate}) => {
 
-    const {user , date , active} = item
-
+    const {patientId ,time , diagnostic , active} = item 
+ 
     return(
         <GroupBlock>
                 <GroupItem  onPress={ navigate.bind(this, 'Patient' , item)}>
-                    <Avatar source={{ uri: user.avatar}} />  
+                    <Avatar style={{backgroundColor : colorFilter(patientId._id) , borderRadius: 50 , display : 'flex' , justifyContent : 'center' , alignItems : "center" }}>
+                      <AvatarLetter>{patientId.fullname.trim().toUpperCase()[0] || 'U'}</AvatarLetter>  
+                    </Avatar>  
                     <View>
-                        <FullName>{user.name}</FullName>
-                        <GrayText>{user.diagnos}</GrayText>
+                        <FullName>{patientId.fullname}</FullName>
+                        <GrayText>{diagnostic}</GrayText>   
                     </View>
                     <DateWrapper active={active}>
                         <GroupDate active={active}>
-                            {date}
+                            {time}
                         </GroupDate>
                     </DateWrapper>
                 </GroupItem>
@@ -64,11 +72,19 @@ const GroupItem = styled.TouchableOpacity`
   border-bottom-color: #f3f3f3;
 `;
 
-const Avatar = styled.Image`
-  width: 40px;
-  height: 40px;
-  border-radius: 50px;
+const AvatarLetter = styled.Text`
+  font-size: 30px;
+  color: white ;
+  text-align: center;
+`;
+
+const Avatar = styled.View` 
+  width: 50px;
+  height: 50px;
   margin-right: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const GroupBlock = styled.View`
