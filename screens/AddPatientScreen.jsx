@@ -3,7 +3,7 @@ import styled from 'styled-components/native'
 import { AntDesign } from '@expo/vector-icons'
 import { patientApi } from '../utils/api'
 
-const AddAppointmentScreen = ({navigation}) => {
+const AddPatientScreen = ({navigation}) => {
 
     const [values , setValues] = useState({
         fullname : '',
@@ -14,8 +14,8 @@ const AddAppointmentScreen = ({navigation}) => {
         setValues({
             ...values , 
             fullname : e.nativeEvent.text
-        })
-        navigation.navigate( 'Home') 
+        })          
+        
     }
 
     const onChangeHandlerPhone = (e) => {
@@ -28,8 +28,13 @@ const AddAppointmentScreen = ({navigation}) => {
     const onPressSend = () => {
         patientApi.post(values)
                   .then( res => alert('Пацієнта було успішно записано!') )
-                  .catch( e => alert('У вас не вийшло записти') )
-        navigation.navigate.bind(this  , 'Home') 
+                  .catch( e => alert('У вас не вийшло записти') ) 
+        
+        setValues({
+            fullname : '' ,
+            phone : ''
+        })
+        navigation.navigate.bind(this  , 'Home')
     }
 
     return (
@@ -111,7 +116,7 @@ const AddFormWrapper = styled.View`
     padding-top: 50px;
 `;
 
-AddAppointmentScreen.navigationOptions = {
+AddPatientScreen.navigationOptions = {
     title : "Запис пацієнта", 
     headerTintColor: '#2a86ff' ,
     headerStyle:{
@@ -127,4 +132,4 @@ AddAppointmentScreen.navigationOptions = {
     }
 }
 
-export default AddAppointmentScreen;
+export default AddPatientScreen;

@@ -1,10 +1,11 @@
 import React , {useState , useEffect} from 'react';
 import styled from 'styled-components/native';
 import { Appointment } from '../components';
-import {Ionicons} from '@expo/vector-icons';
-import {  SectionList , Text } from 'react-native'; 
+import { FontAwesome5 , AntDesign } from '@expo/vector-icons';
+import {  SectionList , Alert } from 'react-native'; 
 import SectionTitle from '../components/SectionTitle' ;
 import Swipeable from 'react-native-swipeable-row';
+import { PlussButton } from '../components';
 
 import {appointmentApi} from '../utils/api'
 
@@ -25,6 +26,31 @@ const HomeScreen = ({navigation}) => {
  
       useEffect( fetchAppointments , [] ) 
 
+      const remove = id => {
+        Alert.alert(
+          "Видалення запису!",
+          "Ви дійсно хочете видалити запис прийому ?",
+          [
+            {
+              text: "Відмінити",
+              onPress: () => {},
+              style: "cancel"
+            },
+            { text: "Видалити", onPress: () => {
+              setIsLoading(true)
+              const result = data.map( group =>{
+                group.data = group.data.filter( ftem => ftem._id !== id )
+                return group
+              })
+              appointmentApi.remove(id).catch(err => alert('Запис прийому видалено не було!Проблеми з Інтернетом!'))
+              setData(result)
+              setIsLoading(false)
+            } }
+          ]
+        );
+        
+      }
+
     return(
         <Container>
           {
@@ -33,8 +59,20 @@ const HomeScreen = ({navigation}) => {
                 sections={data}
                 refreshing={isLoading}
                 onRefresh={fetchAppointments}
-                keyExtractor={(item, index) => index } 
-                renderItem={({ item }) => (<Swipeable rightButtons={[<Text>Right</Text> , <Text>Left</Text>]}>
+                keyExtractor={(item, index) => index }  
+                renderItem={({ item }) => (<Swipeable key={item._id} rightButtons={[
+                                            <SwipeViewButton onSwipe   style={{backgroundColor: '#b4c1cb'}}>
+                                              <ButtonIconWrapper  >
+                                                <FontAwesome5 name="edit" size={40} color="white" />
+                                              </ButtonIconWrapper>
+                                            </SwipeViewButton> ,
+                                            <SwipeViewButton onPress={() => remove(item._id)} style={{backgroundColor: '#f85a5a'}}>
+                                              <ButtonIconWrapper>
+                                                <AntDesign name="delete" size={40} color="white" />
+                                              </ButtonIconWrapper>
+                                              
+                                            </SwipeViewButton>
+                                            ]}>
                                               <Appointment navigate={navigation.navigate } item={item} />
                                           </Swipeable>) }
                 renderSectionHeader={({ section: { title } }) => (
@@ -42,10 +80,9 @@ const HomeScreen = ({navigation}) => {
                 )}
             />        
           }
+          
+          <PlussButton onPress={navigation.navigate.bind(this  , 'AddPatient')  } />
             
-            <PlusButton onPress={navigation.navigate.bind(this  , 'AddPatient')}>
-              <Ionicons name='ios-add' size={36} color='white' />
-            </PlusButton>
         </Container>
     )
 }
@@ -66,29 +103,24 @@ HomeScreen.navigationOptions = {
         }
 };
 
-const SwipeView = styled.View`
-  background-color: red;
+const ButtonIconWrapper = styled.View`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-left: 20px;
+
 `;
 
-const PlusButton = styled.TouchableOpacity`
-  border-radius: 50px;
-   width: 64px;
-  height: 64px;
-  background-color: #2a86ff;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  bottom: 5%;
-  right: 7%;
-  shadow-color: #2a86ff;
-  shadow-opacity: 0.9;
-  shadow-radius: 5;
-  elevation: 5;
+const SwipeViewButton = styled.TouchableOpacity`
+  flex: 1;
+  width: 75px;
 `;
 
 const Container = styled.View`
   flex : 1; 
   margin-left: 10px;
+  padding-bottom: 50px;
 `;
 
 export default HomeScreen;

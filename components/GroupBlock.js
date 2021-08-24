@@ -60,7 +60,7 @@ const GroupDate = styled.Text`
 
 const FullName = styled.Text`
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
 `;
 
 const GroupItem = styled.TouchableOpacity`

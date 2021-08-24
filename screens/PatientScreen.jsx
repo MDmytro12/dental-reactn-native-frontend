@@ -1,62 +1,93 @@
-import React from 'react'
-import styled from 'styled-components/native'
-import GrayText from '../components/GrayText'
-import {Foundation , MaterialCommunityIcons , Feather} from '@expo/vector-icons'
-import {View , Text  } from 'react-native'
-import Badge from '../components/Badge'
+import React , {useState , useEffect} from 'react';
+import styled from 'styled-components/native';
+import GrayText from '../components/GrayText';
+import {Foundation , MaterialCommunityIcons , Feather} from '@expo/vector-icons';
+import {View , Text ,ActivityIndicator , SectionList , Linking } from 'react-native';
+import Badge from '../components/Badge';
+import { patientApi } from '../utils/api';
+import { PlussButton } from '../components';
  
 const PatientScreen = ({navigation}) => {
-    console.log(navigation.g)
+
+    const [appointments , setAppointments] = useState([])
+    const [isLoading , setLoading] = useState(false) 
+
+    useEffect(() => {
+        setLoading(true)
+        patientApi.gets(navigation.getParam('patientId')._id)               
+                   .then( res => setAppointments([{
+                        title : "Прийоми" ,   
+                        data :res.data.appointments
+                    }]))
+                   .catch( error => console.log(error) )  
+        setLoading(false)
+    } , [] )
+
     return( 
         <View style={{flex: 1}}>
             <Container>
                 <PatientFullName>{navigation.getParam('patientId' ,{}).fullname}</PatientFullName>
                 <GrayText>{navigation.getParam('patientId' ,{}).phone}</GrayText>
                 <ButtonView>
-                    <ButtonFormullaWrapper>
+                    <ButtonFormullaWrapper> 
                         <ButtonText>Формула зубів</ButtonText>
                     </ButtonFormullaWrapper>
-                    <ButtonPhonellaWrapper>
+                    <ButtonPhonellaWrapper onPress={() => { Linking.openURL(`tel:${navigation.getParam('patientId' ,{}).phone}`)}} >
                         <ButtonText>
                             <Foundation name='telephone' size={36} color='white' />
                         </ButtonText>
                     </ButtonPhonellaWrapper>
                 </ButtonView>
             </Container>
-            <PatientAppointments>
-                <Container>
-                    <Badge>Прийоми</Badge>
-                    <AppointmentCard style={{position : 'relative'}}>
-                        <AppointmentMoreWrapper>
-                            <AppointmentMoreTouch>
-                                <Feather name="more-horizontal" size={34} color="black" />
-                            </AppointmentMoreTouch>
-                        </AppointmentMoreWrapper>
-                        <AppointmentRow>
-                            <MaterialCommunityIcons name="tooth" size={24} color="#a3a3a3" />
-                            <AppointmentCardLabel>
-                                Зуб : <Text style={{fontWeight: '700'}}>{navigation.getParam('dentNumber' , 0 )}</Text>
-                            </AppointmentCardLabel>
-                        </AppointmentRow>
-                        <AppointmentRow>
-                            <MaterialCommunityIcons name="clipboard-text-multiple-outline" size={24} color="#a3a3a3" />
-                            <AppointmentCardLabel>
-                                Діагноз : <Text style={{fontWeight: '700'}}>{navigation.getParam('diagnostic')}</Text>
-                            </AppointmentCardLabel>
-                        </AppointmentRow>   
-                        <AppointmentRow style={{ paddingBottom: 0,display : 'flex' , justifyContent: 'space-between' }}>
-                            <AppointmentDateWrapper>
-                                <AppointmentDate>{navigation.getParam('date')} - {navigation.getParam('time')}</AppointmentDate>
-                            </AppointmentDateWrapper>
-                            <AppointmentPriceWrapper>
-                                <AppointmentPrice>
-                                    {navigation.getParam('price')} P
-                                </AppointmentPrice>
-                            </AppointmentPriceWrapper>
-                        </AppointmentRow>
-                    </AppointmentCard>    
-                </Container>    
-            </PatientAppointments>
+            {
+                isLoading ? <ActivityIndicator size='large' color="#2a86ff" /> :
+                <PatientAppointments>
+                    <Container>
+                    <SectionList
+                            sections={appointments}
+                            refreshing={isLoading}
+                            keyExtractor={(item, index) => index }  
+                            renderItem={({item}) => (
+                                <AppointmentCard style={{position : 'relative'}} key={item._id}>
+                                    <AppointmentMoreWrapper>
+                                        <AppointmentMoreTouch>
+                                            <Feather name="more-horizontal" size={34} color="black" />
+                                        </AppointmentMoreTouch>
+                                    </AppointmentMoreWrapper>
+                                    <AppointmentRow>
+                                        <MaterialCommunityIcons name="tooth" size={24} color="#a3a3a3" />
+                                        <AppointmentCardLabel>
+                                            Зуб : <Text style={{fontWeight: '700'}}> {item.dentNumber}</Text>
+                                        </AppointmentCardLabel>
+                                    </AppointmentRow>
+                                    <AppointmentRow>
+                                        <MaterialCommunityIcons name="clipboard-text-multiple-outline" size={24} color="#a3a3a3" />
+                                        <AppointmentCardLabel>
+                                            Діагноз : <Text style={{fontWeight: '700'}}> {item.diagnostic}</Text>
+                                        </AppointmentCardLabel>
+                                    </AppointmentRow>   
+                                    <AppointmentRow style={{ paddingBottom: 0,display : 'flex' , justifyContent: 'space-between' }}>
+                                        <AppointmentDateWrapper>
+                                            <AppointmentDate>{item.date} - {item.time}</AppointmentDate>
+                                        </AppointmentDateWrapper>
+                                        <AppointmentPriceWrapper>
+                                            <AppointmentPrice>
+                                                {item.price} P
+                                            </AppointmentPrice>
+                                        </AppointmentPriceWrapper>
+                                    </AppointmentRow>
+                                </AppointmentCard>
+                            ) }
+                            renderSectionHeader={({ section: { title } }) => (
+                                <Badge>Прийоми</Badge>
+                            )}
+                        />  
+                        
+                    </Container>    
+                    <PlussButton onPress={ navigation.navigate.bind(this , 'AddAppointment' , navigation.getParam('patientId')._id )}/> 
+                </PatientAppointments>
+            }
+           
         </View>
     )
 }
@@ -121,6 +152,7 @@ const AppointmentCard = styled.View`
     padding: 25px;
     border-radius: 10px;
     background: white;
+    margin-bottom: 20px;
 `;
 
 const PatientAppointments = styled.View`
