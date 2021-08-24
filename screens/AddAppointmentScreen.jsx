@@ -1,35 +1,42 @@
 import React , {useState , useRef } from 'react'
 import styled from 'styled-components/native'
 import { Foundation  } from '@expo/vector-icons'
-import {ScrollView ,  Picker } from 'react-native'
+import {ScrollView ,  Picker , ActivityIndicator } from 'react-native'
 import RNDateTimePicker from '@react-native-community/datetimepicker';
-import {appointmentApi} from '../utils/api/appointment'
+import { appointmentApi } from '../utils/api';
 
 
 const AddAppointmentScreen = ({navigation}) => {
 
     const [values , setValues] = useState({
-        dentNumber : 0 ,    
+        dentNumber : '1' ,    
         diagnostic : 'Видалення зуба',
-        price : '',
+        price : '1000',
         date : new Date()  ,
-        time : ''
+        time : new Date() ,
+        patientId : navigation.getParam('patientId')
     })
+    const [isLoading , setIsLoading] = useState(false)
 
     const onChangeValue = (key , value) => {
-        switch(key){
-            case 'time' : setValues({...values , time : value});
-            case 'date' : setValues({...values , date : value});
-            case 'diagnostic' : setValues({...values , diagnostic : value});
-            case 'price' : setValues({...values , price : value});
-            case 'dentNumber' : setValues({...values , dentNumber : value});
-            default : setValues(values)
-        }   
+        setValues({...values , [key] : value})  
     } 
  
     const onPressSend = () => {
-  
-        console.log(navigation.getParam('data'))
+        setIsLoading(true)
+        appointmentApi.add({
+            price : values.price ,
+            date : new Intl.DateTimeFormat('ua-UA' , {year: 'numeric' , month: 'numeric' , day: 'numeric' , hour12: false }).format(values.date).split('.').reverse().join('-') ,
+            time : new Intl.DateTimeFormat('ua-UA' , {hour: 'numeric' , minute: 'numeric' , hour12: false}).format(values.time) ,
+            diagnostic: values.diagnostic ,
+            dentNumber : values.dentNumber ,
+            patientId: values.patientId
+        }).then( res => {
+            setIsLoading(false)
+            navigation.navigate('Home')
+        } )
+          .catch(err => alert("Ви не змогли добавити прийом!Перевірте правильність введення даних!"))
+          .finally(() => setIsLoading(false))
     }
  
     return (
@@ -38,9 +45,9 @@ const AddAppointmentScreen = ({navigation}) => {
                 <AddFormInputName
                     style={{marginBottom: 20}}
                     placeholder="Номер зуба"
-                    value={values.dentNumber}
+                    value={values.dentNumber.toString()}
                     keyboardType='numeric'
-                    onChange={ () => onChangeValue('dentNumber' , values.dentNumber)}
+                    onChange={ (e) => onChangeValue('dentNumber' , e.nativeEvent.text)}
                 />
                 <DiagnosticText>
                     Діагноз : 
@@ -76,10 +83,9 @@ const AddAppointmentScreen = ({navigation}) => {
                     style={{ height: 100, width: '100%'} }
                     value={values.date || new Date()}
                     mode='date'
-                    locale='ua-UA'  
                     is24Hour={true}
                     display="spinner"
-                    onChange={(er , date) => setValues({...values , date })}
+                    onChange={(er , date) => setValues({...values , date : date })}
                 />
 
                 <DiagnosticText style={{marginBottom: 20 , marginTop: 20}}>
@@ -89,22 +95,25 @@ const AddAppointmentScreen = ({navigation}) => {
                     testID="dateTimePicker"
                     style={{ height: 100, width: '100%' , marginBottom: 20 }}
                     value={values.time || new Date()}
-                    mode='time'
-                    locale='ua-UA'  
+                    mode='time' 
                     is24Hour={true}
+                    fomrmat
                     display="spinner"
-                    onChange={(err , time) => setValues({...values , time })}
+                    onChange={(err , time) => setValues({...values , time : time })}
                 />
 
-
-                <ButtonWrapper style={{marginBottom: 50}}>
+                {
+                    isLoading ? <ActivityIndicator size='large' color="#2a86ff" /> :
+                    <ButtonWrapper style={{marginBottom: 50}}>
                     <ButtonOpacity onPress={onPressSend}  >
-                    <Foundation name="clipboard-pencil" size={30} color="white" />
-                        <ButtonText>
-                            Записати пацієнта
-                        </ButtonText>
-                    </ButtonOpacity>
-                </ButtonWrapper>
+                        <Foundation name="clipboard-pencil" size={30} color="white" />
+                            <ButtonText>
+                                Записати пацієнта
+                            </ButtonText>
+                        </ButtonOpacity>
+                    </ButtonWrapper>
+                }
+                
             </AddFormWrapper>
         </ScrollView>
         

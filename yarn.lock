@@ -5952,6 +5952,11 @@
   "resolved" "https://registry.npmjs.org/react-is/-/react-is-17.0.2.tgz"
   "version" "17.0.2"
 
+"react-native-date-picker@^3.4.1":
+  "integrity" "sha512-P5sAcM9MdBPIXPyWWiV8G1SY0zmhvLmrfMPdmNfiMDNcWalYHwXEbzwhpY4mFwgSdmh29UzKbYftslpQs/OAEg=="
+  "resolved" "https://registry.npmjs.org/react-native-date-picker/-/react-native-date-picker-3.4.1.tgz"
+  "version" "3.4.1"
+
 "react-native-datepicker@^1.7.2":
   "integrity" "sha1-WNCCJZGgrJsyq6CCZQIioO4pZp0="
   "resolved" "https://registry.npmjs.org/react-native-datepicker/-/react-native-datepicker-1.7.2.tgz"
